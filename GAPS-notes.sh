@@ -42,17 +42,17 @@ pass_prompt(){
 
 getStudentID(){
 	echo "Asking the gods for your student ID..."
-	curl https://gaps.heig-vd.ch/consultation/etudiant/index.php --data "login=${username}&password=${password}&submit=Entrer" 1&>/dev/null
+	curl https://gaps.heig-vd.ch/consultation/etudiant/index.php --data "login=${username}&password=${password}&submit=Entrer" 1>/dev/null 2>./.log
 
 	studentID="$(curl https://gaps.heig-vd.ch/consultation/controlescontinus/consultation.php \
-	-u ${username}:${password} 2>&1 | \
+	-u ${username}:${password} 2>./.log | \
 	grep 'show_CCs(' | grep -Eo '[0-9]{5}'| uniq
 	)"
 	echo "your student GAPS ID seems to be ${studentID}"
 }
 fetchNotes(){
 
-	echo "Fetching notes..."
+	echo "Fetching notes..../"
 	raw="$(curl -H "Content-Type: application/x-www-form-urlencoded; charset=utf-8" -s 'https://gaps.heig-vd.ch/consultation/controlescontinus/consultation.php' \
 	--data "rs=getStudentCCs&rsargs=%5B${studentID}%2C${year}%2Cnull%5D&" -u${username}:${password} 2>>./.log)"
 	endString=$((${#raw} - 3 - 1));
@@ -107,7 +107,7 @@ then
 	year_prompt	
 fi
 
-
+rm .log
 getStudentID
 fetchNotes
 prettify
